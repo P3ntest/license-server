@@ -9,3 +9,49 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Account {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  apps App[]
+}
+
+model App {
+  id        String    @id @default(cuid())
+  name      String
+  createdAt DateTime  @default(now())
+  creator   Account   @relation(fields: [creatorId], references: [id])
+  creatorId String
+  licenses  License[]
+}
+
+model License {
+  id  String @id @default(cuid())
+  key String
+
+  payload String?
+
+  createdAt  DateTime  @default(now())
+  validUntil DateTime?
+
+  app      App             @relation(fields: [appId], references: [id], onDelete: Cascade)
+  appId    String
+  accesses LicenseAccess[]
+
+  ipLimited Boolean  @default(false)
+  ips       String[]
+}
+
+model LicenseAccess {
+  id Int @id @default(autoincrement())
+
+  license   License @relation(fields: [licenseId], references: [id])
+  licenseId String
+
+  time       DateTime @default(now())
+  ip         String
+  additional Json
+}
