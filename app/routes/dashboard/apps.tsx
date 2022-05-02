@@ -1,10 +1,10 @@
-import { Button, Card, Divider, Group, Input, InputWrapper, Modal, SimpleGrid, Space, Text, Title } from "@mantine/core";
+import { ActionIcon, Button, Card, Divider, Group, Input, InputWrapper, Modal, SimpleGrid, Space, Text, Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { App } from "@prisma/client";
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Plus, Search } from "tabler-icons-react";
+import { Plus, Search, X } from "tabler-icons-react";
 import { getAccount } from "~/services/auth.server";
 import { db } from "~/services/db.server";
 
@@ -25,7 +25,9 @@ export default function Apps() {
         </Group>
         <Divider my={20} />
 
-        <Input value={filter} onChange={(e: any) => setFilter(e.target.value)} icon={<Search />} width={200} />
+        <Input value={filter} onChange={(e: any) => setFilter(e.target.value)} icon={<Search />} rightSection={<ActionIcon onClick={() => setFilter("")}><X /></ActionIcon>} />
+
+        <Space h={20} />
 
         <SimpleGrid
             cols={4}
@@ -36,7 +38,7 @@ export default function Apps() {
                 { maxWidth: 600, cols: 1, spacing: 'sm' },
             ]}
         >
-            {apps.map(app => {
+            {apps.filter(app => app.name.toLowerCase().includes(filter.toLowerCase())).map(app => {
                 return <Card withBorder>
                     <Text weight={700}>{app.name}</Text>
                 </Card>;
