@@ -16,6 +16,8 @@ model Account {
   password  String
   createdAt DateTime @default(now())
 
+  admin Boolean @default(false)
+
   apps App[]
 }
 
