@@ -15,7 +15,7 @@ export const links: LinksFunction = () => {
 };
 
 export default function DashboardShell() {
-    const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+    const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
     const toggleColorScheme = (value?: ColorScheme) =>
         setColorScheme(value ?? (colorScheme === 'dark' ? 'light' : 'dark'));
 
@@ -24,7 +24,9 @@ export default function DashboardShell() {
             <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
                 <NotificationsProvider>
                     <AppShell navbar={<DashboardNavBar />}>
-                        <Outlet />
+                        <Container size={"lg"}>
+                            <Outlet />
+                        </Container>
                     </AppShell>
                 </NotificationsProvider>
             </MantineProvider>

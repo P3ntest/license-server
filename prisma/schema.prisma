@@ -23,6 +23,7 @@ model Account {
 
 model App {
   id        String    @id @default(cuid())
+  key       String    @unique
   name      String
   createdAt DateTime  @default(now())
   creator   Account   @relation(fields: [creatorId], references: [id])

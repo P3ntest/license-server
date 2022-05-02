@@ -1,12 +1,14 @@
 import { ActionIcon, Button, Card, Divider, Group, Input, InputWrapper, Modal, SimpleGrid, Space, Text, Title } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { App } from "@prisma/client";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Plus, Search, X } from "tabler-icons-react";
+import { Check, Plus, Search, X } from "tabler-icons-react";
+import { DashboardHeader } from "~/compontents/dashboard/header";
 import { getAccount } from "~/services/auth.server";
 import { db } from "~/services/db.server";
+import generateToken from "~/services/token.server";
 
 interface LoaderData {
     apps: App[]
@@ -19,11 +21,7 @@ export default function Apps() {
     const [filter, setFilter] = useState("");
 
     return <>
-        <Group position="apart">
-            <Title>Apps</Title>
-            <Button leftIcon={<Plus />} onClick={() => setOpened(true)}>Create New</Button>
-        </Group>
-        <Divider my={20} />
+        <DashboardHeader title="Apps" crumbs={["Apps"]} rightSection={<Button leftIcon={<Plus />} onClick={() => setOpened(true)}>Create New</Button>} />
 
         <Input value={filter} onChange={(e: any) => setFilter(e.target.value)} icon={<Search />} rightSection={<ActionIcon onClick={() => setFilter("")}><X /></ActionIcon>} />
 
@@ -39,13 +37,15 @@ export default function Apps() {
             ]}
         >
             {apps.filter(app => app.name.toLowerCase().includes(filter.toLowerCase())).map(app => {
-                return <Card withBorder>
-                    <Text weight={700}>{app.name}</Text>
-                </Card>;
+                return <Link to={app.id}>
+                    <Card withBorder>
+                        <Text weight={700}>{app.name}</Text>
+                    </Card>
+                </Link>
             })}
         </SimpleGrid>
 
-        {apps.length == 0 ? <Text>You don't have any apps yet!</Text> : null}
+        {apps.length == 0 ? <Text>You don't have any apps yet! </Text> : null}
 
 
         <Modal
@@ -56,13 +56,15 @@ export default function Apps() {
         >
             <Form method="post">
                 <InputWrapper label="App Name" required description="Enter the name of your app">
-                    <Input name="name" />
+                    <Input name="name" required />
                     <Space h={20} />
                     <Button type="submit" onClick={() => {
                         setOpened(false);
                         showNotification({
                             title: "App created",
                             message: "Your app has been created successfully",
+                            icon: <Check />,
+                            color: "green"
                         });
                     }}>Create</Button>
                 </InputWrapper>
@@ -94,12 +96,13 @@ export const action: ActionFunction = async ({ request }) => {
 
     const name = formData.get("name") as string;
 
-    await db.app.create({
+    const app = await db.app.create({
         data: {
             name,
-            creatorId: account.id
+            creatorId: account.id,
+            key: generateToken()
         }
     });
 
-    return {};
+    return redirect(`/dashboard/apps/${app.id}`);
 };
