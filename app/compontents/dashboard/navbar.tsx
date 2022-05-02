@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createStyles, Navbar, Group, Code, Text, SegmentedControl, useMantineColorScheme, Center, Box } from '@mantine/core';
 import {
 
+    Apps,
     Home, Logout, Moon, Sun, SwitchHorizontal
 } from 'tabler-icons-react';
 import { Link, NavLink } from '@remix-run/react';
@@ -67,6 +68,7 @@ const useStyles = createStyles((theme, _params, getRef) => {
 
 const data = [
     { link: '/', label: 'Dashboard', icon: Home },
+    { link: '/apps', label: 'Apps', icon: Apps },
 ];
 
 export function DashboardNavBar() {
@@ -76,7 +78,7 @@ export function DashboardNavBar() {
     const links = data.map((item) => (
         <NavLink
             className={cx(classes.link)}
-            to={item.link}
+            to={"/dashboard" + item.link}
             key={item.label}
         >
             <item.icon className={classes.linkIcon} />

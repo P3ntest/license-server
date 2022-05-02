@@ -1,7 +1,9 @@
-import { ColorScheme, ColorSchemeProvider } from "@mantine/core";
+import { AppShell, ColorScheme, ColorSchemeProvider, Container, Stack } from "@mantine/core";
 import { MantineProvider } from "@mantine/core";
+import { NotificationsProvider } from "@mantine/notifications";
 import { LinksFunction } from "@remix-run/node";
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 import { DashboardNavBar } from "~/compontents/dashboard/navbar";
 
 import stylesUrl from "~/styles/index.css";
@@ -20,7 +22,11 @@ export default function DashboardShell() {
     return (
         <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme} >
             <MantineProvider theme={{ colorScheme }} withGlobalStyles withNormalizeCSS>
-                <DashboardNavBar />
+                <NotificationsProvider>
+                    <AppShell navbar={<DashboardNavBar />}>
+                        <Outlet />
+                    </AppShell>
+                </NotificationsProvider>
             </MantineProvider>
         </ColorSchemeProvider>
     )
