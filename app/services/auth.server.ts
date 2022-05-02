@@ -17,7 +17,7 @@ authenticator.use(
         let password = form.get("password") as string | null;
 
         if (!username || !password) {
-            throw new AuthorizationError("Please provide a username and password");
+            throw new AuthorizationError("USER PASSWORD");
         }
 
         const account = await db.account.findFirst({
@@ -27,13 +27,13 @@ authenticator.use(
         });
 
         if (!account) {
-            throw new AuthorizationError("User not found");
+            throw new AuthorizationError("USER");
         }
 
         const allowed = await bcrypt.compare(password, account.password);
 
         if (!allowed) {
-            throw new AuthorizationError("Invalid password");
+            throw new AuthorizationError("PASSWORD");
         }
 
         return {
