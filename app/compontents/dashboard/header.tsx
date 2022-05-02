@@ -2,7 +2,7 @@ import { Breadcrumbs, Button, Divider, Group, Stack, Title, Text, Space } from "
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
 
-export function DashboardHeader({ title, rightSection, crumbs, divider = true }: { title: string, rightSection?: ReactNode, crumbs?: (string | [string, string])[], divider?: boolean }) {
+export function DashboardHeader({ title, rightSection, crumbs, divider = true }: { title: ReactNode, rightSection?: ReactNode, crumbs?: (string | [string, string])[], divider?: boolean }) {
     crumbs = crumbs ? [["Dashboard", "/"], ...crumbs] : [["Dashboard", "/"]];
 
     return <>

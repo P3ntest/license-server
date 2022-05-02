@@ -1,10 +1,10 @@
-import { Button, Divider, Group, Modal, Text, TextInput } from "@mantine/core";
+import { ActionIcon, Button, Divider, Group, Modal, Stack, Text, TextInput } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
 import { App } from "@prisma/client";
 import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Check, Cross } from "tabler-icons-react";
+import { Check, Cross, Edit } from "tabler-icons-react";
 import { DashboardHeader } from "~/compontents/dashboard/header";
 import { getAccount } from "~/services/auth.server";
 import { db } from "~/services/db.server";
@@ -27,7 +27,7 @@ export default function App() {
     }
 
     return <>
-        <DashboardHeader divider={false} crumbs={[["Apps", "/apps"], app.name]} title={app.name} rightSection={
+        <DashboardHeader divider={false} crumbs={[["Apps", "/apps"], app.name]} title={<Group>{app.name} <EditNameButton currentName={app.name} /></Group>} rightSection={
             <Group>
                 <Button color="red" onClick={() => setOpened(true)}>Delete</Button>
             </Group>} />
@@ -63,6 +63,44 @@ export default function App() {
     </>
 }
 
+const EditNameButton = ({ currentName }: { currentName: string }) => {
+    const [open, setOpen] = useState<boolean>(false);
+
+    const [newName, setNewName] = useState<string>(currentName);
+
+    const close = () => {
+        setOpen(false);
+        setNewName(currentName);
+    }
+
+    return <>
+        <ActionIcon onClick={() => setOpen(true)}><Edit /></ActionIcon>
+
+        <Modal
+            opened={open}
+            onClose={close}
+            title="Rename App"
+        >
+            <Form method="patch">
+                <Stack>
+                    <TextInput data-autofocus label="New name" name="name" required value={newName} onChange={(e) => setNewName(e.target.value)} />
+                    <Button type="submit" disabled={newName === currentName} onClick={() => {
+                        showNotification({
+                            title: "Renamed",
+                            message: "App has been renamed to \"" + newName + "\"",
+                            icon: <Check />,
+                            color: "green"
+                        });
+
+                        setOpen(false);
+                    }}>Rename</Button>
+                </Stack>
+            </Form>
+        </Modal>
+    </>;
+
+}
+
 export const loader: LoaderFunction = async ({ request, params }) => {
     const account = await getAccount(request);
 
@@ -95,5 +133,22 @@ export const action: ActionFunction = async ({ request, params }) => {
         });
 
         return redirect("/dashboard/apps");
+    }
+
+    if (request.method === "PATCH") {
+        const formData = await request.formData();
+
+        const name = formData.has("name") ? formData.get("name") as string : undefined;
+
+        await db.app.update({
+            where: {
+                id: params.appId
+            },
+            data: {
+                name
+            }
+        });
+
+        return {};
     }
 };
