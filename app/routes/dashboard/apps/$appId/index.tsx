@@ -22,7 +22,7 @@ export default function AppIndex() {
 
     const payloadChanged = payload !== app.payload;
 
-    return <Stack spacing="md">
+    return <Stack spacing="lg">
         <div>
             <Title order={3}>Tokens</Title>
             <Text weight={600}>Key: <Button variant="subtle" onClick={() => setShowingKey(!showingKey)}>{showingKey ? "Hide" : "Show"}</Button></Text>
@@ -62,6 +62,10 @@ export default function AppIndex() {
                     </Button>
                 </Group>
             </Form>
+        </Stack>
+
+        <Stack>
+            <Title order={3}>Access Log</Title>
         </Stack>
     </Stack >
 }
