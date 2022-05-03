@@ -37,7 +37,7 @@ model License {
   id  String @id @default(cuid())
   key String
 
-  payload String?
+  payload String
 
   createdAt  DateTime  @default(now())
   validUntil DateTime?
@@ -46,8 +46,9 @@ model License {
   appId    String
   accesses LicenseAccess[]
 
-  ipLimited Boolean  @default(false)
-  ips       String[]
+  ipLimited   Boolean  @default(false)
+  ips         String[]
+  ipBlacklist String[]
 }
 
 model LicenseAccess {
