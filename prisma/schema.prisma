@@ -30,7 +30,7 @@ model App {
   creatorId String
   licenses  License[]
 
-  payload String?
+  payload String @default("")
 }
 
 model License {
