@@ -56,18 +56,18 @@ export default function Apps() {
         >
             <Form method="post">
                 <InputWrapper label="App Name" required description="Enter the name of your app">
-                    <Input name="name" required />
-                    <Space h={20} />
-                    <Button type="submit" onClick={() => {
-                        setOpened(false);
-                        showNotification({
-                            title: "App created",
-                            message: "Your app has been created successfully",
-                            icon: <Check />,
-                            color: "green"
-                        });
-                    }}>Create</Button>
+                    <Input name="name" data-autofocus required />
                 </InputWrapper>
+                <Space h={20} />
+                <Button type="submit" onClick={() => {
+                    setOpened(false);
+                    showNotification({
+                        title: "App created",
+                        message: "Your app has been created successfully",
+                        icon: <Check />,
+                        color: "green"
+                    });
+                }}>Create</Button>
             </Form>
         </Modal>
     </>

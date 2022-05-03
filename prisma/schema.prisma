@@ -29,6 +29,8 @@ model App {
   creator   Account   @relation(fields: [creatorId], references: [id])
   creatorId String
   licenses  License[]
+
+  payload String?
 }
 
 model License {
