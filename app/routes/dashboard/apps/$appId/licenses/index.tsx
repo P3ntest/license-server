@@ -1,9 +1,9 @@
-import { Badge, Card, Group, Text, Stack, Title, Divider, SimpleGrid, Button, Modal, Indicator, Switch, Stack, JsonInput, Textarea } from "@mantine/core";
+import { Badge, Card, Group, Text, Title, Divider, SimpleGrid, Button, Modal, Indicator, Switch, Stack, JsonInput, Textarea, TextInput } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import { License, LicenseAccess } from "@prisma/client";
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { Check, Key, Plus, World } from "tabler-icons-react";
 import { getAccount } from "~/services/auth.server";
@@ -20,14 +20,17 @@ interface LoaderData {
 export default function LicenseOverview() {
     const { licenses } = useLoaderData<LoaderData>();
 
+    const actionData = useActionData();
+
     return <Stack>
         <Group>
             <Title order={2}>Licenses</Title>
+            {JSON.stringify(actionData)}
             <AddLicenseButton />
         </Group>
         <SimpleGrid cols={4}>
             {licenses.map(license =>
-                <Card withBorder p="md">
+                <Card withBorder p="md" key={license.id}>
                     <Group>
                         <Key />
                         {license.ipLimited ?
@@ -71,6 +74,7 @@ const AddLicenseButton = () => {
         >
             <Form method="post">
                 <Stack>
+                    <TextInput label="Label" name="label" />
                     <Switch value="timeLimited" label="Only valid until" checked={isTimeLimited} onChange={e => setIsTimeLimited(e.currentTarget.checked)} />
                     <DatePicker name="validUntil" required={isTimeLimited} placeholder="Pick date" label="Valid until" disabled={!isTimeLimited}
                         renderDay={(date) => {
@@ -139,8 +143,10 @@ export const action: ActionFunction = async ({ request, params }) => {
         data: {
             key: generateToken(),
             ipLimited: formData.has("ipLimited"),
-            ips: formData.has("ipLimited") ? (formData.get("ips") as string).split("\n") : [],
+            ips: (formData.get("ips") as string).split("\n"),
             payload: formData.get("payload") as string ?? "",
+
+            label: formData.get("label") as string ?? "",
 
             validUntil: formData.has("isTimeLimited") ? new Date(formData.get("validUntil") as string) : null,
 
@@ -148,5 +154,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         }
     });
 
-    return {};
+    return {
+        license
+    };
 };

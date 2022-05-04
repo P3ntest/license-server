@@ -39,6 +39,8 @@ model License {
 
   payload String
 
+  label String @default("")
+
   createdAt  DateTime  @default(now())
   validUntil DateTime?
 
