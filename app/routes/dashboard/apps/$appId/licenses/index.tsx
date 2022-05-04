@@ -71,8 +71,8 @@ const AddLicenseButton = () => {
         >
             <Form method="post">
                 <Stack>
-                    <Switch name="isTimeLimited" label="Only valid until" checked={isTimeLimited} onChange={e => setIsTimeLimited(e.currentTarget.checked)} />
-                    <DatePicker name="validUntil" placeholder="Pick date" label="Valid until" disabled={!isTimeLimited}
+                    <Switch value="timeLimited" label="Only valid until" checked={isTimeLimited} onChange={e => setIsTimeLimited(e.currentTarget.checked)} />
+                    <DatePicker name="validUntil" required={isTimeLimited} placeholder="Pick date" label="Valid until" disabled={!isTimeLimited}
                         renderDay={(date) => {
                             const day = date.getDate();
                             return (
@@ -81,10 +81,9 @@ const AddLicenseButton = () => {
                                 </Indicator>
                             );
                         }} />
-
-                    <JsonInput label="Payload" />
-                    <Switch label="Ip Limited" checked={isIpLimited} onChange={e => setIsIpLimited(e.currentTarget.checked)} />
-                    <Textarea disabled={!isIpLimited} label="IP Whitelist" autosize placeholder="One IP mask per line" />
+                    <JsonInput name="payload" label="Payload" />
+                    <Switch name="ipLimited" value="ipLimited" label="Ip Limited" checked={isIpLimited} onChange={e => setIsIpLimited(e.currentTarget.checked)} />
+                    <Textarea name="ips" disabled={!isIpLimited} label="IP Whitelist" autosize placeholder="One IP mask per line" />
                     <Button type="submit" onClick={() => {
                         onClose();
                         showNotification({
@@ -134,15 +133,20 @@ export const action: ActionFunction = async ({ request, params }) => {
 
     const formData = await request.formData();
 
+    console.log("ipLimited", formData.has("ipLimited"));
+
     const license = await db.license.create({
         data: {
             key: generateToken(),
-            ipLimited: formData.get("ipLimited") === "true",
+            ipLimited: formData.has("ipLimited"),
+            ips: formData.has("ipLimited") ? (formData.get("ips") as string).split("\n") : [],
             payload: formData.get("payload") as string ?? "",
 
-            validUntil: formData.get("isTimeLimited") === "true" ? new Date(formData.get("validUntil") as string) : null,
+            validUntil: formData.has("isTimeLimited") ? new Date(formData.get("validUntil") as string) : null,
 
-            appId: params.appId
+            appId: params.appId!
         }
     });
+
+    return {};
 };
