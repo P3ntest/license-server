@@ -4,7 +4,7 @@ import { App } from "@prisma/client";
 import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Check, Plus, Search, X } from "tabler-icons-react";
+import { Box, Check, Plus, Search, X } from "tabler-icons-react";
 import { DashboardHeader } from "~/compontents/dashboard/header";
 import { getAccount } from "~/services/auth.server";
 import { db } from "~/services/db.server";
@@ -37,9 +37,14 @@ export default function Apps() {
             ]}
         >
             {apps.filter(app => app.name.toLowerCase().includes(filter.toLowerCase())).map(app => {
-                return <Link to={app.id}>
+                return <Link to={app.id} key={app.id}>
                     <Card withBorder>
-                        <Text weight={700}>{app.name}</Text>
+                        <Group>
+                            <Box />
+                            <Text weight={700}>{app.name}</Text>
+                        </Group>
+                        <Divider variant="dashed" my={10} />
+                        <Text color="dimmed">Created at {new Date(app.createdAt).toDateString()}</Text>
                     </Card>
                 </Link>
             })}
