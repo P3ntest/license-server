@@ -9,10 +9,14 @@ import {
   Header,
   Table,
   Code,
+  Textarea,
+  Container,
+  TextInput,
 } from "@mantine/core";
-import { License, LicenseAccess } from "@prisma/client";
+import { App, License, LicenseAccess } from "@prisma/client";
 import { LoaderFunction } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
+import { useInputState } from "@mantine/hooks";
 import {
   ArrowBack,
   ArrowLeft,
@@ -48,14 +52,7 @@ export default function LicenseOverview() {
         <Title order={3}>{license.label}</Title>
         <Badges license={license} />
       </Group>
-      <Form method="patch">
-        <Stack>
-          <JsonInput label="Payload" defaultValue={license.payload} />
-          <Button type="submit" disabled>
-            Save
-          </Button>
-        </Stack>
-      </Form>
+      <PropEditor license={license} />
       <Title order={4}>Access Log</Title>
       <Table striped highlightOnHover>
         <thead>
@@ -100,6 +97,66 @@ export default function LicenseOverview() {
     </Stack>
   );
 }
+
+const PropEditor = ({ license }: { license: License }) => {
+  const [payload, setPayload] = useInputState(license.payload);
+  const [label, setLabel] = useInputState(license.label);
+
+  const [ipInput, setIpInput] = useInputState(license.ips.join("\n"));
+  const [blackListInput, setBlackListInput] = useInputState(
+    license.ipBlacklist.join("\n")
+  );
+
+  const ips = ipInput.split("\n").filter((ip) => ip !== "");
+  const ipBlacklist = blackListInput.split("\n").filter((ip) => ip !== "");
+
+  const changed =
+    payload != license.payload ||
+    JSON.stringify(ips) != JSON.stringify(license.ips) ||
+    JSON.stringify(ipBlacklist) != JSON.stringify(license.ipBlacklist) ||
+    label != license.label;
+
+  return (
+    <Form method="patch">
+      <Container>
+        <Stack>
+          <TextInput
+            value={label}
+            onChange={setLabel}
+            label="License Label"
+            placeholder="My license"
+          />
+          <Textarea
+            label="Payload"
+            value={payload}
+            onChange={setPayload}
+            placeholder="Payload"
+            autosize
+          />
+          <Textarea
+            defaultValue={license.ips.join("\n")}
+            label="IP Whitelist"
+            placeholder="One IP per line"
+            value={ipInput}
+            onChange={setIpInput}
+            autosize
+          />
+          <Textarea
+            defaultValue={license.ipBlacklist.join("\n")}
+            label="IP Blacklist"
+            placeholder="One IP per line"
+            value={blackListInput}
+            onChange={setBlackListInput}
+            autosize
+          />
+          <Button type="submit" disabled={!changed}>
+            Save
+          </Button>
+        </Stack>
+      </Container>
+    </Form>
+  );
+};
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const account = await getAccount(request);

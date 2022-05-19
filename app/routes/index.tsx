@@ -7,7 +7,7 @@ export default function Index() {
 
 export const loader: LoaderFunction = async ({ request }) => {
   await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login"
+    failureRedirect: "/login",
   });
 
   return redirect("/dashboard");
