@@ -13,7 +13,7 @@ import { App } from '@prisma/client';
 import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node';
 import { Form, Link, Outlet, useLoaderData } from '@remix-run/react';
 import { useState } from 'react';
-import { Check, Cross, Edit } from 'tabler-icons-react';
+import { Box, Check, Cross, Edit } from 'tabler-icons-react';
 import { DashboardHeader } from '~/compontents/dashboard/header';
 import { getAccount } from '~/services/auth.server';
 import { db } from '~/services/db.server';
@@ -23,7 +23,7 @@ interface LoaderData {
     app: App;
 }
 
-export default function App() {
+export default function AppView() {
     const { app } = useLoaderData<LoaderData>();
 
     const [opened, setOpened] = useState(false);
@@ -42,6 +42,7 @@ export default function App() {
                 crumbs={[['Apps', '/apps'], app.name]}
                 title={
                     <Group>
+                        <Box size={35} />
                         {app.name} <EditNameButton currentName={app.name} />
                     </Group>
                 }

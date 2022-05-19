@@ -25,6 +25,7 @@ import {
     Box,
     Clock,
     DatabaseExport,
+    FileCertificate,
     ShieldCheck,
 } from 'tabler-icons-react';
 import { Badges } from '~/compontents/dashboard/license';
@@ -52,7 +53,9 @@ export default function LicenseOverview() {
                 </Text>
             </Link>
             <Group>
-                <Title order={3}>{license.label}</Title>
+                <Title order={3}>
+                    <FileCertificate /> {license.label}
+                </Title>
                 <Badges license={license} />
             </Group>
             <PropEditor license={license} />

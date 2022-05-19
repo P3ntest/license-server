@@ -29,6 +29,8 @@ import {
     Clock,
     SquareOff,
     ListCheck,
+    License,
+    FileCertificate,
 } from 'tabler-icons-react';
 import { Badges } from '~/compontents/dashboard/license';
 import { getAccount } from '~/services/auth.server';
@@ -59,7 +61,7 @@ export default function LicenseOverview() {
                     <Link to={license.id} key={license.id}>
                         <Card withBorder p='md'>
                             <Group>
-                                <Key />
+                                <FileCertificate />
                                 <Text weight={700}>{license.label}</Text>
                                 <Badges license={license} />
                             </Group>

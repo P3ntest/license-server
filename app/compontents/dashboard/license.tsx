@@ -1,10 +1,15 @@
 import { Badge } from '@mantine/core';
 import { License } from '@prisma/client';
-import { Clock, ListCheck, SquareOff, History } from 'tabler-icons-react';
+import { Clock, ListCheck, SquareOff, History, Package } from 'tabler-icons-react';
 
 export function Badges({ license }: { license: License }) {
     return (
         <>
+            {license.payload && license.payload != '' ? (
+                <Badge color='violet' leftSection={<Package size={9} />}>
+                    Payload
+                </Badge>
+            ) : null}
             {license.ipLimited ? (
                 <Badge color='green' leftSection={<ListCheck size={9} />}>
                     Ip Limited
