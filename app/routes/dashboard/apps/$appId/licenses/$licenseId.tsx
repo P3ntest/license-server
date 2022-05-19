@@ -32,6 +32,7 @@ import { Badges } from '~/compontents/dashboard/license';
 import { getAccount } from '~/services/auth.server';
 import { db } from '~/services/db.server';
 import { hasPermission } from '~/services/permission.server';
+import { useState } from 'react';
 
 interface LoaderData {
     license: License;
@@ -41,6 +42,7 @@ interface LoaderData {
 
 export default function LicenseOverview() {
     const { license, accesses, app } = useLoaderData<LoaderData>();
+    const [showingKey, setShowingKey] = useState<boolean>(false);
 
     return (
         <Stack>
@@ -57,6 +59,16 @@ export default function LicenseOverview() {
                     <FileCertificate /> {license.label}
                 </Title>
                 <Badges license={license} />
+            </Group>
+            <Title order={4}>Token</Title>
+            <Group>
+                <Text weight={600}>
+                    Key:{' '}
+                    <Button variant='subtle' onClick={() => setShowingKey(!showingKey)}>
+                        {showingKey ? 'Hide' : 'Show'}
+                    </Button>
+                </Text>
+                {showingKey ? <Code>{license.key}</Code> : null}
             </Group>
             <PropEditor license={license} />
             <Title order={4}>Access Log</Title>
@@ -129,55 +141,53 @@ const PropEditor = ({ license }: { license: License }) => {
 
     return (
         <Form method='patch'>
-            <Container>
-                <Stack>
-                    <Title order={4}>General</Title>
-                    <TextInput
-                        value={label}
-                        onChange={setLabel}
-                        label='License Label'
-                        placeholder='My license'
-                        name='label'
-                    />
-                    <Textarea
-                        label='Payload'
-                        value={payload}
-                        onChange={setPayload}
-                        placeholder='Payload'
-                        autosize
-                        name='payload'
-                    />
-                    <Title order={4}>IP Access Settings</Title>
-                    <Switch
-                        label='IP Whitelist Enabled'
-                        checked={ipLimited}
-                        onChange={box => setIpLimited(box.currentTarget.checked)}
-                        value='ipLimited'
-                        name='ipLimited'
-                    />
-                    <Textarea
-                        defaultValue={license.ips.join('\n')}
-                        label='IP Whitelist'
-                        placeholder='One IP per line'
-                        value={ipInput}
-                        onChange={setIpInput}
-                        autosize
-                        name='ips'
-                    />
-                    <Textarea
-                        defaultValue={license.ipBlacklist.join('\n')}
-                        label='IP Blacklist'
-                        placeholder='One IP per line'
-                        value={blackListInput}
-                        onChange={setBlackListInput}
-                        autosize
-                        name='ipBlacklist'
-                    />
-                    <Button type='submit' disabled={!changed}>
-                        Save
-                    </Button>
-                </Stack>
-            </Container>
+            <Stack>
+                <Title order={4}>General</Title>
+                <TextInput
+                    value={label}
+                    onChange={setLabel}
+                    label='License Label'
+                    placeholder='My license'
+                    name='label'
+                />
+                <Textarea
+                    label='Payload'
+                    value={payload}
+                    onChange={setPayload}
+                    placeholder='Payload'
+                    autosize
+                    name='payload'
+                />
+                <Title order={4}>IP Access Settings</Title>
+                <Switch
+                    label='IP Whitelist Enabled'
+                    checked={ipLimited}
+                    onChange={box => setIpLimited(box.currentTarget.checked)}
+                    value='ipLimited'
+                    name='ipLimited'
+                />
+                <Textarea
+                    defaultValue={license.ips.join('\n')}
+                    label='IP Whitelist'
+                    placeholder='One IP per line'
+                    value={ipInput}
+                    onChange={setIpInput}
+                    autosize
+                    name='ips'
+                />
+                <Textarea
+                    defaultValue={license.ipBlacklist.join('\n')}
+                    label='IP Blacklist'
+                    placeholder='One IP per line'
+                    value={blackListInput}
+                    onChange={setBlackListInput}
+                    autosize
+                    name='ipBlacklist'
+                />
+                <Button type='submit' disabled={!changed}>
+                    Save
+                </Button>
+            </Stack>
         </Form>
     );
 };
