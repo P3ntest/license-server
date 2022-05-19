@@ -19,9 +19,18 @@ import { DatePicker } from "@mantine/dates";
 import { showNotification } from "@mantine/notifications";
 import type { License, LicenseAccess } from "@prisma/client";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { Form, Link, useActionData, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Check, Key, Plus } from "tabler-icons-react";
+import {
+  Check,
+  Key,
+  Plus,
+  History,
+  Clock,
+  SquareOff,
+  ListCheck,
+} from "tabler-icons-react";
+import { Badges } from "~/compontents/dashboard/license";
 import { getAccount } from "~/services/auth.server";
 import { db } from "~/services/db.server";
 import { hasPermission } from "~/services/permission.server";
@@ -45,20 +54,44 @@ export default function LicenseOverview() {
         {JSON.stringify(actionData)}
         <AddLicenseButton />
       </Group>
-      <SimpleGrid cols={4}>
+      <SimpleGrid cols={2}>
         {licenses.map((license) => (
-          <Card withBorder p="md" key={license.id}>
-            <Group>
-              <Key />
-              {license.ipLimited ? <Badge>Ip Locked</Badge> : null}
-            </Group>
-            <Divider my="md" variant="dashed" />
-            <Stack>
-              <Text color="dimmed">
-                Created at {new Date(license.createdAt).toDateString()}
-              </Text>
-            </Stack>
-          </Card>
+          <Link to={license.id} key={license.id}>
+            <Card withBorder p="md">
+              <Group>
+                <Key />
+                <Text weight={700}>{license.label}</Text>
+                <Badges license={license} />
+              </Group>
+              <Divider my="md" variant="dashed" />
+              <Stack>
+                <Text color="dimmed">
+                  Created at {new Date(license.createdAt).toLocaleString()}
+                </Text>
+                <Text color="dimmed">
+                  Last used{" "}
+                  {new Date(
+                    license.accesses
+                      .filter((a) => a.allowed)
+                      .sort((a, b) => a.time.getTime() - b.time.getTime())[0]
+                      ?.time.toString()
+                  ).toLocaleString() ?? "never"}
+                </Text>
+                <Text color="dimmed">
+                  Last error{" "}
+                  {new Date(
+                    license.accesses
+                      .filter((a) => !a.allowed)
+                      .sort((a, b) => a.time.getTime() - b.time.getTime())[0]
+                      ?.time.toString()
+                  ).toLocaleString() ?? "never"}
+                </Text>
+                <Text color="dimmed">
+                  Total uses {license.accesses.filter((a) => a.allowed).length}
+                </Text>
+              </Stack>
+            </Card>
+          </Link>
         ))}
       </SimpleGrid>
 
@@ -173,13 +206,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   await hasPermission(params.appId!, account.id, true);
 
   const licenses = await db.license.findMany({
+    where: {
+      appId: params.appId!,
+    },
     include: {
-      accesses: {
-        orderBy: {
-          time: "desc",
-        },
-        take: 1,
-      },
+      accesses: true,
     },
   });
 
