@@ -13,26 +13,33 @@ import {
     Container,
     TextInput,
     Switch,
+    ActionIcon,
+    Tooltip,
 } from '@mantine/core';
 import type { App, License, LicenseAccess } from '@prisma/client';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
-import { useBooleanToggle, useInputState, useToggle } from '@mantine/hooks';
+import { useBooleanToggle, useClipboard, useInputState, useToggle } from '@mantine/hooks';
 import {
     ArrowBack,
     ArrowLeft,
     ArrowLoopLeft,
     Box,
+    Clipboard,
     Clock,
     DatabaseExport,
     FileCertificate,
+    Share,
     ShieldCheck,
 } from 'tabler-icons-react';
-import { Badges } from '~/compontents/dashboard/license';
+import { Badges, CopyLicenseButton } from '~/compontents/dashboard/license';
 import { getAccount } from '~/services/auth.server';
 import { db } from '~/services/db.server';
 import { hasPermission } from '~/services/permission.server';
 import { useState } from 'react';
+import { showNotification } from '@mantine/notifications';
+import { CopyToClipboardButton } from '~/compontents/copy';
+import { getOrigin, Origin, useOrigin } from '~/compontents/heros';
 
 interface LoaderData {
     license: License;
@@ -44,6 +51,9 @@ export default function LicenseOverview() {
     const { license, accesses, app } = useLoaderData<LoaderData>();
     const [showingKey, setShowingKey] = useState<boolean>(false);
 
+    const { copy } = useClipboard();
+    const origin = useOrigin();
+
     return (
         <Stack>
             <Link to={`/dashboard/apps/${app.id}/licenses`}>
@@ -54,11 +64,19 @@ export default function LicenseOverview() {
                     </Group>
                 </Text>
             </Link>
-            <Group>
-                <Title order={3}>
-                    <FileCertificate /> {license.label}
-                </Title>
-                <Badges license={license} />
+            <Group position='apart'>
+                <Group>
+                    <Title order={3}>
+                        <FileCertificate /> {license.label}
+                    </Title>
+                    <Badges license={license} />
+                </Group>
+                <CopyToClipboardButton
+                    label='Copy sharing link to clipboard'
+                    content={`${origin}/license/${license.key}`}
+                    icon={<Share />}
+                    message='Copied URL to clipboard'
+                />
             </Group>
             <Title order={4}>Token</Title>
             <Group>
@@ -121,6 +139,7 @@ export default function LicenseOverview() {
 const PropEditor = ({ license }: { license: License }) => {
     const [payload, setPayload] = useInputState(license.payload);
     const [label, setLabel] = useInputState(license.label);
+    const [assignedToInput, setAssignedToInput] = useInputState(license.assignedTo);
 
     const [ipLimited, setIpLimited] = useBooleanToggle(license.ipLimited);
 
@@ -131,13 +150,15 @@ const PropEditor = ({ license }: { license: License }) => {
 
     const ips = ipInput.split('\n').filter(ip => ip !== '');
     const ipBlacklist = blackListInput.split('\n').filter(ip => ip !== '');
+    const assignedTo = assignedToInput === '' ? null : assignedToInput;
 
     const changed =
         payload != license.payload ||
         JSON.stringify(ips) != JSON.stringify(license.ips) ||
         JSON.stringify(ipBlacklist) != JSON.stringify(license.ipBlacklist) ||
         label != license.label ||
-        ipLimited != license.ipLimited;
+        ipLimited != license.ipLimited ||
+        assignedTo != license.assignedTo;
 
     return (
         <Form method='patch'>
@@ -149,6 +170,13 @@ const PropEditor = ({ license }: { license: License }) => {
                     label='License Label'
                     placeholder='My license'
                     name='label'
+                />
+                <TextInput
+                    value={assignedToInput ?? ''}
+                    onChange={setAssignedToInput}
+                    label='Issued to'
+                    placeholder='John Doe'
+                    name='assignedTo'
                 />
                 <Textarea
                     label='Payload'
@@ -235,6 +263,7 @@ export const action: ActionFunction = async ({ request, params }) => {
                 .split('\n')
                 .filter(ip => ip !== ''),
             ipLimited: formData.has('ipLimited'),
+            assignedTo: formData.get('assignedTo') as string,
         },
     });
 

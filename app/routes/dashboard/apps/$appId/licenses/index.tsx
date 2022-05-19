@@ -72,6 +72,9 @@ export default function LicenseOverview() {
                                     {new Date(license.createdAt).toLocaleString()}
                                 </Text>
                                 <Text color='dimmed'>
+                                    Issued to {license.assignedTo ?? '-'}
+                                </Text>
+                                <Text color='dimmed'>
                                     Last used{' '}
                                     {new Date(
                                         license.accesses

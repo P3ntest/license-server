@@ -1,6 +1,17 @@
-import { Badge } from '@mantine/core';
+import { ActionIcon, Badge, Tooltip } from '@mantine/core';
+import { useClipboard } from '@mantine/hooks';
+import { showNotification } from '@mantine/notifications';
 import { License } from '@prisma/client';
-import { Clock, ListCheck, SquareOff, History, Package } from 'tabler-icons-react';
+import {
+    Clock,
+    ListCheck,
+    SquareOff,
+    History,
+    Package,
+    Share,
+    Check,
+    Clipboard,
+} from 'tabler-icons-react';
 
 export function Badges({ license }: { license: License }) {
     return (
