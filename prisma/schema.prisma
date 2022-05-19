@@ -59,7 +59,10 @@ model LicenseAccess {
   license   License @relation(fields: [licenseId], references: [id])
   licenseId String
 
+  allowed Boolean
+  error   String?
+
   time       DateTime @default(now())
   ip         String
-  additional Json
+  additional Json?
 }
